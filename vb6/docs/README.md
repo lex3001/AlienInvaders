@@ -135,7 +135,7 @@ The documentation is organized into 8 comprehensive files covering all aspects o
 
 ---
 
-### 8. [Recreation Roadmap](08_RECREATION_ROADMAP.md)
+### 8. [Recreation Roadmap](08_RE-CREATION_ROADMAP.md)
 **Modern Platform Migration Guide** - How to recreate the game
 - **Modern Framework Recommendations:**
   - **Desktop:** SDL2 (C/C++), MonoGame (C#), Pygame (Python)
@@ -220,8 +220,8 @@ This codebase demonstrates:
 - **Title:** Alien Invaders
 - **Author:** Luther Ananda Miller
 - **Copyright:** (c) 1998-1999
-- **Contact:** luther@usa.net
-- **Website:** http://www.lanandam.com/ai/ai.htm
+- **Contact:** [redacted]
+- **Website:** [redacted]
 - **Technology:** Visual Basic 6, DirectX 7/8
 - **Release:** Alpha Version 0.0, Build 254
 

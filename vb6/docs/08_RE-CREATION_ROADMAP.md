@@ -82,6 +82,15 @@ Formula: screenPos = logicalPos × (displayRes / 640)
 - Sprite sheets with fixed-size frames
 - Back-to-front rendering order
 
+**Sprite Sheet Considerations for Modernization:**
+- The original assets are packed into **sprite sheets** with fixed-size frames, so the recreation should either:
+    - Keep the same sheet layout and drive animations by **frame index**, or
+    - Repack into a modern **texture atlas** (with a frame metadata file) while preserving frame order.
+- Each sheet encodes multiple animation states (idle, attack, explode) and relies on **named sequences**; modern engines should map these sequences explicitly.
+- Frames often include **custom collision boxes**; keep those definitions or recreate them per frame to preserve hit feel.
+- If converting BMP → PNG, preserve pixel alignment and add **padding** between frames to avoid texture bleeding.
+- If you upscale or redraw, keep **consistent frame sizes** or update sequence metadata to match new dimensions.
+
 **Modern Equivalents:**
 
 #### Option A: Pixel Art Preservation

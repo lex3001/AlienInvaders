@@ -4,6 +4,18 @@
 
 ### Core Sprite Sheets
 
+#### How Sprite Sheets and Animations Work
+
+Most bitmap files in this project are **sprite sheets** rather than single images. Each sheet packs multiple frames into a grid, and the game treats each frame as a small rectangle to copy (blit) onto the screen. Animation is created by stepping through frame numbers in a defined order at a fixed timing interval.
+
+At a high level:
+- **Layout** defines the grid (frames wide × frames tall) and total frame count.
+- **Frame size** is the pixel size of a single frame on the sheet.
+- **Frame definitions** map a frame index to a source rectangle within the sheet (and the collision box for gameplay).
+- **Animation sequences** are named lists of frame indices with a playback speed and loop/once behavior (for example: `NORMAL`, `ATTACK_LEFT`, `EXPLODE`).
+
+The result is that a single bitmap file can contain idle, movement, attack, and explosion frames for one entity, keeping asset loading simple and rendering fast.
+
 #### AlienA.bmp
 - **File Size**: 18K
 - **Dimensions**: 256 × 72 pixels (estimated)

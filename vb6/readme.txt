@@ -1,7 +1,7 @@
 Alien Invaders
 (c) 1998-1999 Luther Ananda Miller
-luther@usa.net
-http://www.lanandam.com/ai/ai.htm
+[redacted]
+[redacted]
 
 Release Notes
 
