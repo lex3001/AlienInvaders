@@ -1,0 +1,88 @@
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 1.5, 182
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 14.5, 194
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 27.5, 182
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 40.5, 194
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 53.5, 182
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 66.5, 194
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 79.5, 182
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 92.5, 194
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 105.5, 182
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 118.5, 194
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 131.5, 182
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 144.5, 194
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 157.5, 182
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 170.5, 194
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienA: 183.5, 182
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienB: 40, 144
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienB: 57, 144
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienB: 74, 144
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienB: 118, 144
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienB: 135, 144
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienB: 152, 144
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienC: 60, 162
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienC: 138, 162
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienD: 55, 122
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienD: 133, 122
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienE: 32.5, 170
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienE: 84.5, 170
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienE: 110.5, 170
+
+3/7/99 1:25:32 AM: *** INFO *** in : 
+  Description: AlienE: 162.5, 170
+3/7/99 3:26:58 AM: *** INFO *** in Main: 
+  Description: ** STARTING **

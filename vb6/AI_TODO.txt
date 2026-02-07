@@ -1,0 +1,11 @@
+Alien Invaders
+To Do List
+
+*) bug when alienB is in transition and gets killed (two missles in a row)
+*) direct attackers
+*) maximum velocity (with accel.)
+*) Draw ships for lives left
+*) Level Intro
+*) Game over Ending
+*) Better menu screen
+*) ufos and special prizes, etc.

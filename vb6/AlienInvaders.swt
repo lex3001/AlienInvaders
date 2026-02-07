@@ -1,0 +1,83 @@
+[Setup Wizard Template]
+TemplateDate=4/28/99 10:29:34 PM
+
+[Select Project and Options]
+txtProjFile=C:\My Documents\VBProjects\AlienInvaders\AlienInvaders.vbp
+chkProjRebuild=1
+optBldSetup=True
+chkIncludeDEP=1
+optInternet=False
+optDEPOnly=False
+
+[Distribution Method]
+optFloppyTarg=False
+optSingleDirTarg=True
+optMultDirTarg=False
+
+[Single Directory]
+cboFloppyDrives=0
+cboFloppyDriveSize=0
+txtDirTarget=C:\My Documents\VBProjects\AISetup\
+
+[Internet Package]
+optRemoteSite=True
+optLocalSite=False
+txtLocalSite=
+
+[Data Access]
+chkUseJet=1
+chkUseODBC=0
+Isam0=
+
+[ActiveX Server Components]
+File1=
+
+[Confirm Dependencies]
+File1=
+
+[Shared ActiveX Application]
+optDeployApplication=True
+optDeployShared=False
+optRemoteServer1=True
+optRemoteServer0=False
+
+[File Summary]
+File1="C:\WINDOWS\SYSTEM\MSVBVM50.dll",True,"$(WinSysPathSysFile)",$(DLLSelfRegister),False
+File2="C:\Program Files\DevStudio\VB\SETUPKIT\KITFIL32\SYS32\StdOle2.tlb",True,"$(WinSysPathSysFile)",$(TLBRegister),False
+File3="C:\Program Files\DevStudio\VB\SETUPKIT\KITFIL32\SYS32\OleAut32.dll",True,"$(WinSysPathSysFile)",$(DLLSelfRegister),False
+File4="C:\Program Files\DevStudio\VB\SETUPKIT\KITFIL32\SYS32\OlePro32.dll",True,"$(WinSysPathSysFile)",$(DLLSelfRegister),False
+File5="C:\Program Files\DevStudio\VB\SETUPKIT\KITFIL32\SYS32\AsycFilt.dll",True,"$(WinSysPathSysFile)",,False
+File6="C:\Program Files\DevStudio\VB\SETUPKIT\KITFIL32\SYS32\Ctl3d32.dll",True,"$(WinSysPathSysFile)",,False
+File7="C:\Program Files\DevStudio\VB\SETUPKIT\KITFIL32\SYS32\ComCat.dll",True,"$(WinSysPathSysFile)",$(DLLSelfRegister),False
+File8="C:\My Documents\VBProjects\AlienInvaders\AlienInv.exe",True,"$(AppPath)",,False
+File9="C:\My Documents\VBProjects\AlienInvaders\AlienInv.DEP",True,"$(AppPath)",,False
+File10="C:\My Documents\VBProjects\AlienInvaders\readme.txt",True,"$(AppPath)",,False
+File11="C:\My Documents\VBProjects\AlienInvaders\Resource\LASER.WAV",True,"$(AppPath)\Resource",,False
+File12="C:\My Documents\VBProjects\AlienInvaders\Resource\WHOOSH.WAV",True,"$(AppPath)\Resource",,False
+File13="C:\My Documents\VBProjects\AlienInvaders\Resource\AlienA.bmp",True,"$(AppPath)\Resource",,False
+File14="C:\My Documents\VBProjects\AlienInvaders\Resource\AlienB.bmp",True,"$(AppPath)\Resource",,False
+File15="C:\My Documents\VBProjects\AlienInvaders\Resource\AlienC.bmp",True,"$(AppPath)\Resource",,False
+File16="C:\My Documents\VBProjects\AlienInvaders\Resource\AlienD.bmp",True,"$(AppPath)\Resource",,False
+File17="C:\My Documents\VBProjects\AlienInvaders\Resource\AlienE.bmp",True,"$(AppPath)\Resource",,False
+File18="C:\My Documents\VBProjects\AlienInvaders\Resource\BombA.bmp",True,"$(AppPath)\Resource",,False
+File19="C:\My Documents\VBProjects\AlienInvaders\Resource\BombD.bmp",True,"$(AppPath)\Resource",,False
+File20="C:\My Documents\VBProjects\AlienInvaders\Resource\Missle.bmp",True,"$(AppPath)\Resource",,False
+File21="C:\My Documents\VBProjects\AlienInvaders\Resource\Ship.bmp",True,"$(AppPath)\Resource",,False
+File22="C:\My Documents\VBProjects\AlienInvaders\Resource\Stars.bmp",True,"$(AppPath)\Resource",,False
+File23="C:\My Documents\VBProjects\AlienInvaders\Resource\XBonus.bmp",True,"$(AppPath)\Resource",,False
+File24="C:\My Documents\VBProjects\AlienInvaders\Resource\Planet.bmp",True,"$(AppPath)\Resource",,False
+File25="C:\My Documents\VBProjects\AlienInvaders\Resource\Dash.bmp",True,"$(AppPath)\Resource",,False
+File26="C:\My Documents\VBProjects\AlienInvaders\Resource\Bonuses.bmp",True,"$(AppPath)\Resource",,False
+File27="C:\My Documents\VBProjects\AlienInvaders\Resource\boom1.wav",True,"$(AppPath)\Resource",,False
+File28="C:\My Documents\VBProjects\AlienInvaders\Resource\boom2.wav",True,"$(AppPath)\Resource",,False
+File29="C:\My Documents\VBProjects\AlienInvaders\Resource\doh2.wav",True,"$(AppPath)\Resource",,False
+File30="C:\My Documents\VBProjects\AlienInvaders\Resource\doh3.wav",True,"$(AppPath)\Resource",,False
+File31="C:\My Documents\VBProjects\AlienInvaders\Resource\grunt1.wav",True,"$(AppPath)\Resource",,False
+File32="C:\My Documents\VBProjects\AlienInvaders\Resource\heyheyhey.wav",True,"$(AppPath)\Resource",,False
+File33="C:\My Documents\VBProjects\AlienInvaders\Resource\Phone.wav",True,"$(AppPath)\Resource",,False
+File34="C:\My Documents\VBProjects\AlienInvaders\Resource\Sludge.wav",True,"$(AppPath)\Resource",,False
+File35="C:\My Documents\VBProjects\AlienInvaders\Resource\Splat.wav",True,"$(AppPath)\Resource",,False
+File36="C:\My Documents\VBProjects\AlienInvaders\Resource\TYPE.WAV",True,"$(AppPath)\Resource",,False
+File37="C:\My Documents\VBProjects\AlienInvaders\Resource\Cargo.bmp",True,"$(AppPath)\Resource",,False
+File38="C:\My Documents\VBProjects\AlienInvaders\Resource\Rocket.bmp",True,"$(AppPath)\Resource",,False
+File39="C:\My Documents\VBProjects\AlienInvaders\Resource\AlienE2.bmp",True,"$(AppPath)\Resource",,False
