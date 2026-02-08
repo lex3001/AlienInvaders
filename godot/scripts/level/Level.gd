@@ -50,8 +50,16 @@ var bonus: int = 0
 # Formation leader (for alien formations)
 var formation_leader: Actor = null
 
+# Collision manager
+var collision_manager: CollisionManager = null
+
 func _ready():
-	pass
+	# Initialize collision manager
+	collision_manager = CollisionManager.new()
+	collision_manager.play_width = play_width
+	collision_manager.play_height = play_height
+	collision_manager._initialize_grid()
+	add_child(collision_manager)
 
 func initialize_level(p_level_number: int, p_game: Game) -> void:
 	level_number = p_level_number
@@ -284,39 +292,65 @@ func _cleanup_deleted_actors() -> void:
 	cargo = cargo.filter(func(c): return c != null and not c.is_deleted)
 
 func _check_collisions() -> void:
-	# Simple collision detection - will be optimized with spatial partitioning later
+	# Use spatial partitioning collision manager for optimized detection
 	
-	# Check missile-alien collisions
-	for missile in missiles:
-		if missile.is_deleted:
-			continue
-		for alien in aliens:
-			if alien.is_deleted or not alien.can_be_hit_by_missiles:
-				continue
-			if _check_actor_collision(missile, alien):
-				missile.is_deleted = true
-				alien.was_hit_by_missile = true
-				if alien.must_be_destroyed:
-					aliens_destroyed += 1
-				break
+	if not collision_manager:
+		return
+	
+	# Filter out deleted aliens that can be hit
+	var hittable_aliens = aliens.filter(func(a): 
+		return a != null and not a.is_deleted and a.can_be_hit_by_missiles)
+	
+	# Check missile-alien collisions using spatial partitioning
+	var missile_alien_collisions = collision_manager.check_collisions_for_actors(missiles, hittable_aliens)
+	for collision_pair in missile_alien_collisions:
+		var missile = collision_pair[0]
+		var alien = collision_pair[1]
+		
+		if not missile.is_deleted and not alien.is_deleted:
+			missile.is_deleted = true
+			alien.was_hit_by_missile = true
+			if alien.must_be_destroyed:
+				aliens_destroyed += 1
+			# Only process first collision per missile
+			break
 	
 	# Check bomb-player collisions
 	if player and not player.is_deleted:
-		for bomb in bombs:
-			if bomb.is_deleted:
-				continue
-			if _check_actor_collision(bomb, player):
+		var player_array = [player]
+		var bomb_player_collisions = collision_manager.check_collisions_for_actors(bombs, player_array)
+		for collision_pair in bomb_player_collisions:
+			var bomb = collision_pair[0]
+			
+			if not bomb.is_deleted:
 				bomb.is_deleted = true
 				if not shields_on:
 					player.was_hit_by_missile = true
 					on_player_death()
+				else:
+					# Hit shields - destroy bomb but not player
+					play_sound("BOOM1")
+				# Only process first collision
 				break
-
-func _check_actor_collision(actor1: Actor, actor2: Actor) -> bool:
-	# Simple AABB collision detection
-	var bounds1 = actor1.get_bounds()
-	var bounds2 = actor2.get_bounds()
-	return bounds1.intersects(bounds2)
+	
+	# Check alien-player collisions
+	if player and not player.is_deleted:
+		var player_array = [player]
+		var alien_player_collisions = collision_manager.check_collisions_for_actors(aliens, player_array)
+		for collision_pair in alien_player_collisions:
+			var alien = collision_pair[0]
+			
+			if not alien.is_deleted and alien.can_hit_player:
+				if not shields_on:
+					player.was_hit_by_missile = true
+					on_player_death()
+					alien.is_deleted = true  # Alien also destroyed
+				else:
+					# Hit shields - destroy alien but not player
+					alien.is_deleted = true
+					play_sound("BOOM2")
+				# Only process first collision
+				break
 
 func _check_level_complete() -> void:
 	if aliens_destroyed >= num_aliens_must_be_destroyed:
