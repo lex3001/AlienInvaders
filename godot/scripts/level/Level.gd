@@ -57,6 +57,9 @@ var formation_leader: Actor = null
 # Collision manager
 var collision_manager: CollisionManager = null
 
+# Sound manager
+var sound_manager: SoundManager = null
+
 func _ready():
 	# Initialize collision manager
 	collision_manager = CollisionManager.new()
@@ -64,6 +67,11 @@ func _ready():
 	collision_manager.play_height = play_height
 	collision_manager._initialize_grid()
 	add_child(collision_manager)
+	
+	# Initialize sound manager
+	sound_manager = SoundManager.new()
+	add_child(sound_manager)
+	sound_manager.load_all_game_sounds()
 
 func initialize_level(p_level_number: int, p_game: Game) -> void:
 	level_number = p_level_number
@@ -466,8 +474,8 @@ func on_player_death() -> void:
 		game.lose_life()
 
 func play_sound(sound_name: String) -> void:
-	# TODO: Implement sound playback
-	pass
+	if sound_manager:
+		sound_manager.play_sound(sound_name)
 
 func _get_alien_score(alien: Actor) -> int:
 	# Determine score based on alien brain type
