@@ -17,6 +17,10 @@ var aliens: Array[Actor] = []
 var missiles: Array[Actor] = []
 var bombs: Array[Actor] = []
 var cargo: Array[Actor] = []
+var powerups: Array[PowerUp] = []
+
+# Visual bonuses (floating score text)
+var display_bonuses: Array[Dictionary] = []
 
 # Level state
 var level_number: int = 1
@@ -101,6 +105,13 @@ func _clear_actors() -> void:
 		if c and is_instance_valid(c):
 			c.queue_free()
 	cargo.clear()
+	
+	for p in powerups:
+		if p and is_instance_valid(p):
+			p.queue_free()
+	powerups.clear()
+	
+	display_bonuses.clear()
 	
 	if player and is_instance_valid(player):
 		player.queue_free()
@@ -283,6 +294,14 @@ func _update_actors(delta: float) -> void:
 	for bomb in bombs:
 		if bomb and not bomb.is_deleted:
 			bomb._process(delta)
+	
+	# Update power-ups
+	for powerup in powerups:
+		if powerup and not powerup.is_deleted:
+			powerup._process(delta)
+	
+	# Update display bonuses
+	_update_display_bonuses(delta)
 
 func _cleanup_deleted_actors() -> void:
 	# Remove deleted actors
@@ -290,6 +309,7 @@ func _cleanup_deleted_actors() -> void:
 	missiles = missiles.filter(func(m): return m != null and not m.is_deleted)
 	bombs = bombs.filter(func(b): return b != null and not b.is_deleted)
 	cargo = cargo.filter(func(c): return c != null and not c.is_deleted)
+	powerups = powerups.filter(func(p): return p != null and not p.is_deleted)
 
 func _check_collisions() -> void:
 	# Use spatial partitioning collision manager for optimized detection
@@ -310,6 +330,16 @@ func _check_collisions() -> void:
 		if not missile.is_deleted and not alien.is_deleted:
 			missile.is_deleted = true
 			alien.was_hit_by_missile = true
+			
+			# Add score and maybe spawn power-up
+			var points = _get_alien_score(alien)
+			add_score(points)
+			_show_bonus(alien.position, points)
+			
+			# Chance to spawn power-up
+			if randf() < 0.1:  # 10% chance
+				_spawn_powerup(alien.position)
+			
 			if alien.must_be_destroyed:
 				aliens_destroyed += 1
 			# Only process first collision per missile
@@ -350,6 +380,21 @@ func _check_collisions() -> void:
 					alien.is_deleted = true
 					play_sound("BOOM2")
 				# Only process first collision
+				break
+	
+	# Check power-up collection by player
+	if player and not player.is_deleted:
+		var player_array = [player]
+		var powerup_player_collisions = collision_manager.check_collisions_for_actors(powerups, player_array)
+		for collision_pair in powerup_player_collisions:
+			var powerup = collision_pair[0]
+			
+			if not powerup.is_deleted:
+				powerup.is_deleted = true
+				powerup.apply_to_level(self)
+				play_sound("TYPE")
+				# Show bonus
+				_show_bonus(powerup.position, 0)  # Visual indicator
 				break
 
 func _check_level_complete() -> void:
@@ -423,3 +468,48 @@ func on_player_death() -> void:
 func play_sound(sound_name: String) -> void:
 	# TODO: Implement sound playback
 	pass
+
+func _get_alien_score(alien: Actor) -> int:
+	# Determine score based on alien brain type
+	if alien.brain is BrainAlienA:
+		return GameConstants.ALIENA_SCORE
+	elif alien.brain is BrainAlienB:
+		return GameConstants.ALIENB_SCORE
+	elif alien.brain is BrainAlienC:
+		return GameConstants.ALIENC_SCORE
+	elif alien.brain is BrainAlienD:
+		return GameConstants.ALIEND_SCORE
+	elif alien.brain is BrainAlienE:
+		return GameConstants.ALIENE_SCORE
+	return 10  # Default
+
+func _spawn_powerup(pos: Vector2) -> void:
+	var powerup = PowerUp.new()
+	powerup.position = pos
+	powerup.power_up_type = PowerUp.create_random_powerup()
+	powerup.value = randi_range(GameConstants.BONUS_MIN, GameConstants.BONUS_MAX)
+	powerup.level = self
+	add_child(powerup)
+	powerups.append(powerup)
+
+func _show_bonus(pos: Vector2, points: int) -> void:
+	# Create visual bonus display
+	var bonus = {
+		"position": pos,
+		"points": points,
+		"lifetime": 1.0,  # Display for 1 second
+		"time": 0.0
+	}
+	display_bonuses.append(bonus)
+
+func _update_display_bonuses(delta: float) -> void:
+	# Update and remove expired bonuses
+	var to_remove = []
+	for i in range(display_bonuses.size()):
+		display_bonuses[i]["time"] += delta
+		if display_bonuses[i]["time"] >= display_bonuses[i]["lifetime"]:
+			to_remove.append(i)
+	
+	# Remove expired bonuses (in reverse to maintain indices)
+	for i in range(to_remove.size() - 1, -1, -1):
+		display_bonuses.remove_at(to_remove[i])
