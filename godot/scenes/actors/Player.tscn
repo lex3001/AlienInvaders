@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://p8k3x2m7n4wq1"]
+
+[ext_resource type="Script" path="res://scripts/core/Actor.gd" id="1_player"]
+
+[node name="Player" type="Node2D"]
+script = ExtResource("1_player")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]

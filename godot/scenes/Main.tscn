@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://cnxm0y7qc4l8v"]
+
+[ext_resource type="Script" path="res://scripts/core/Game.gd" id="1_w7h5n"]
+[ext_resource type="Script" path="res://scripts/ui/TitleScreen.gd" id="2_title"]
+[ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="3_hud"]
+
+[node name="Main" type="Node"]
+
+[node name="Game" type="Node" parent="."]
+script = ExtResource("1_w7h5n")
+
+[node name="TitleScreen" type="Control" parent="."]
+script = ExtResource("2_title")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_hud")
