@@ -115,11 +115,13 @@ func _update_shields_state(ticks_passed: float) -> void:
 		_play_normal_animation()
 
 func _update_exploding_state(_ticks_passed: float) -> void:
+	# Wait for explosion animation to finish
 	if actor.is_animation_playing():
 		return
-
+	
+	# Animation finished - mark actor as deleted and notify level
 	actor.is_deleted = true
-	if level.has_method("on_player_death"):
+	if level and level.has_method("on_player_death"):
 		level.on_player_death()
 
 func _update_movement() -> void:
