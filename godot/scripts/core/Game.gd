@@ -47,6 +47,11 @@ var starfield = null
 var title_screen: Node = null
 var hud: Node = null
 
+# High scores
+var high_scores: HighScores = null
+var high_score_entry: Node = null
+var waiting_for_high_score_entry: bool = false
+
 # Signals
 signal score_changed(new_score: int)
 signal lives_changed(new_lives: int)
@@ -59,9 +64,10 @@ func _ready():
 	_setup_background()
 	_find_title_screen()
 	_find_hud()
+	_setup_high_score_entry()
 	_sync_title_screen_visibility()
 	_apply_initial_window_scale()
-	load_high_score()
+	load_high_scores()
 	reset_game()
 
 func _process(delta: float) -> void:
@@ -122,6 +128,9 @@ func _process_paused(_delta: float) -> void:
 
 func _process_game_over(_delta: float) -> void:
 	# Handle game over screen
+	if waiting_for_high_score_entry:
+		return  # Wait for high score entry to complete
+	
 	if Input.is_action_just_pressed("ui_accept"):
 		reset_game()
 		change_state(Constants.GameState.MENU)
@@ -211,9 +220,11 @@ func end_game() -> void:
 		level.queue_free()
 		level = null
 	
-	if score > high_score:
-		high_score = score
-		save_high_score()
+	# Check if score qualifies for high score table
+	if high_scores and high_scores.is_high_score(score):
+		_show_high_score_entry()
+	else:
+		waiting_for_high_score_entry = false
 
 func _handle_player_death(delta: float) -> void:
 	if not waiting_for_respawn:
@@ -311,19 +322,44 @@ func set_multiplier(multiplier: float, duration: float) -> void:
 	score_multiplier = multiplier
 	multiplier_timer = duration
 
+func load_high_scores() -> void:
+	# Load high scores from file
+	if not high_scores:
+		high_scores = HighScores.new()
+	high_scores.load_default()
+	
+	# Set high_score to the top score
+	if high_scores.scores.size() > 0:
+		high_score = high_scores.scores[0].score
+
+func save_high_scores() -> void:
+	if high_scores:
+		high_scores.save_to_file("user://AI.HS")
+
 func load_high_score() -> void:
-	# Load from file or settings
-	var save_file = "user://highscore.save"
-	if FileAccess.file_exists(save_file):
-		var file = FileAccess.open(save_file, FileAccess.READ)
-		if file:
-			high_score = file.get_32()
-			file.close()
+	# Legacy method for compatibility
+	load_high_scores()
 
 func save_high_score() -> void:
-	# Save to file
-	var save_file = "user://highscore.save"
-	var file = FileAccess.open(save_file, FileAccess.WRITE)
-	if file:
-		file.store_32(high_score)
-		file.close()
+	# Legacy method for compatibility  
+	save_high_scores()
+
+func _setup_high_score_entry() -> void:
+	# Create high score entry UI
+	const HighScoreEntryScript = preload("res://scripts/ui/HighScoreEntry.gd")
+	high_score_entry = HighScoreEntryScript.new()
+	high_score_entry.name_entered.connect(_on_high_score_name_entered)
+	add_child(high_score_entry)
+
+func _show_high_score_entry() -> void:
+	waiting_for_high_score_entry = true
+	if high_score_entry and high_score_entry.has_method("show_entry"):
+		high_score_entry.show_entry(score)
+
+func _on_high_score_name_entered(player_name: String) -> void:
+	if high_scores:
+		high_scores.add_score(player_name, score)
+		save_high_scores()
+		if score > high_score:
+			high_score = score
+	waiting_for_high_score_entry = false

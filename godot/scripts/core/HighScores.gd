@@ -81,6 +81,89 @@ func _clear_scores() -> void:
 	for i in range(10):
 		scores.append({"name": "", "score": 0})
 
+func save_to_file(path: String) -> void:
+	var file = FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		push_error("Failed to open file for writing: " + path)
+		return
+	
+	for record_index in range(1, 11):
+		var data: Array[int] = []
+		var checksum: int = 0
+		
+		# Get score entry (or use empty if out of range)
+		var entry = scores[record_index - 1] if record_index - 1 < scores.size() else {"name": "", "score": 0}
+		var name = entry.name if "name" in entry else ""
+		var score = entry.score if "score" in entry else 0
+		
+		# Pad name to 50 characters
+		name = name.substr(0, 50)  # Truncate if too long
+		while name.length() < 50:
+			name += " "
+		
+		# Encrypt name (characters 1-50)
+		for i in range(1, 51):
+			var key = _get_key(i, record_index)
+			var char_value = name.unicode_at(i - 1) & 0xFF
+			checksum += char_value
+			data.append(char_value ^ key)
+		
+		# Encrypt score (position 51)
+		var score_key = _get_key(51, record_index)
+		checksum += score
+		data.append(score ^ score_key)
+		
+		# Fill padding with random encrypted values (positions 52-127)
+		for i in range(52, 128):
+			var key2 = _get_key(i, record_index)
+			var random_value = randi() % 0x7FFF
+			if randi() % 2 == 1:
+				random_value = -random_value
+			checksum += random_value
+			data.append(random_value ^ key2)
+		
+		# Add checksum at position 128
+		var checksum_key = _get_key(128, record_index)
+		data.append(checksum ^ checksum_key)
+		
+		# Write all 128 values
+		for value in data:
+			file.store_32(value)
+	
+	file.close()
+
+func add_score(player_name: String, score_value: int) -> int:
+	# Find insertion position
+	var insert_index = -1
+	for i in range(scores.size()):
+		if score_value > scores[i].score:
+			insert_index = i
+			break
+	
+	if insert_index < 0:
+		return -1  # Score too low
+	
+	# Shift scores down
+	for i in range(scores.size() - 1, insert_index, -1):
+		if i > 0:
+			scores[i] = scores[i - 1].duplicate()
+	
+	# Insert new score
+	scores[insert_index] = {"name": player_name, "score": score_value}
+	
+	return insert_index
+
+func get_score(index: int) -> Dictionary:
+	if index >= 0 and index < scores.size():
+		return scores[index]
+	return {"name": "", "score": 0}
+
+func is_high_score(score_value: int) -> bool:
+	# Check if score qualifies for top 10
+	if scores.size() < 10:
+		return true
+	return score_value > scores[scores.size() - 1].score
+
 func _ensure_user_file(file_name: String) -> bool:
 	var user_path = "user://" + file_name
 	if FileAccess.file_exists(user_path):
