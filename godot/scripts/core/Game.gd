@@ -111,6 +111,9 @@ func _process_playing(delta: float) -> void:
 		level.update_level(delta)
 		if level.is_player_dead_state():
 			_handle_player_death(delta)
+			# Stop processing if game ended
+			if game_state != Constants.GameState.PLAYING:
+				return
 			return
 		
 		# Check for level completion
@@ -216,8 +219,10 @@ func end_game() -> void:
 	last_score = score
 	change_state(Constants.GameState.GAME_OVER)
 	emit_signal("game_over")
+	
+	# Queue level cleanup for next frame to avoid freeing while still processing
 	if level != null:
-		level.queue_free()
+		level.call_deferred("queue_free")
 		level = null
 	
 	# Check if score qualifies for high score table
