@@ -15,15 +15,15 @@ var level: Node = null
 func initialize(p_actor: Actor, p_level: Node) -> void:
 	actor = p_actor
 	level = p_level
-	reset_state()
+	reset_brain_state()
 
 # Reset brain to initial state
-func reset_state() -> void:
+func reset_brain_state() -> void:
 	# Virtual method - override in derived classes
 	pass
 
 # Main update loop - called every frame
-func update_state(delta: float) -> void:
+func update_state(_delta: float) -> void:
 	# Virtual method - override in derived classes
 	pass
 

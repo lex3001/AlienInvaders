@@ -14,18 +14,16 @@ enum State {
 
 var state: State = State.NORMAL
 
-# Bomb dropping
-var bomb_interval_ms: float = GameConstants.ALIENA_BOMB_INTERVAL_MS
-var ticks_since_last_bomb: float = 0.0
 
-func reset_state() -> void:
+func reset_brain_state() -> void:
 	state = State.NORMAL
-	ticks_since_last_bomb = 0.0
 	
 	if actor:
 		actor.can_be_hit_by_missiles = true
 		actor.can_hit_player = false
 		actor.must_be_destroyed = true
+		if actor.has_animation("normal"):
+			actor.play_animation("normal", true)
 
 func update_state(delta: float) -> void:
 	if not actor or not level:
@@ -39,34 +37,26 @@ func update_state(delta: float) -> void:
 		State.EXPLODING:
 			_update_exploding_state(ticks_passed)
 
-func _update_normal_state(ticks_passed: float) -> void:
+func _update_normal_state(_ticks_passed: float) -> void:
 	# Check for hit
-	if actor.was_hit_by_missile:
+	if actor.was_hit_by_missile > 0:
+		actor.was_hit_by_missile = 0
 		state = State.EXPLODING
 		actor.can_be_hit_by_missiles = false
 		
 		# Add score
 		if level.has_method("add_score"):
-			level.add_score(GameConstants.ALIENA_SCORE)
+			level.add_score(Constants.ALIENA_SCORE)
 		
 		# Play explosion
 		_play_explosion()
 		return
 	
-	# Update bomb timer
-	ticks_since_last_bomb += ticks_passed
-	
-	# Try to drop bomb
-	if ticks_since_last_bomb >= bomb_interval_ms:
-		if level.has_method("drop_alien_bomb"):
-			if level.drop_alien_bomb(actor):
-				ticks_since_last_bomb = 0.0
-				# Add some randomness to next bomb
-				ticks_since_last_bomb = -randf_range(0, bomb_interval_ms * 0.2)
+	# VB6 AlienA does not drop bombs in Level1.
 
-func _update_exploding_state(ticks_passed: float) -> void:
+func _update_exploding_state(_ticks_passed: float) -> void:
 	# Check if explosion animation is complete
-	if actor.animation_player and actor.animation_player.is_playing():
+	if actor.is_animation_playing():
 		return
 	
 	# Mark for deletion
@@ -74,8 +64,8 @@ func _update_exploding_state(ticks_passed: float) -> void:
 
 func _play_explosion() -> void:
 	# Play explosion animation and sound
-	if actor.animation_player and actor.animation_player.has_animation("explode"):
-		actor.animation_player.play("explode")
+	if actor.has_animation("explode"):
+		actor.play_animation("explode")
 	
 	if level.has_method("play_sound"):
 		level.play_sound("WHOOSH")

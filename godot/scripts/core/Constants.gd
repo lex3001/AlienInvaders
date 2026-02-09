@@ -4,8 +4,6 @@
 
 extends Node
 
-class_name GameConstants
-
 # Screen dimensions
 const SCREEN_WIDTH: int = 640
 const SCREEN_HEIGHT: int = 480
@@ -14,10 +12,14 @@ const BOTTOM_BORDER: int = 20
 const PLAY_HEIGHT: int = SCREEN_HEIGHT - TOP_BORDER - BOTTOM_BORDER  # 428
 
 # Player constants
-const PLAYER_VELOCITY: float = 200.0  # pixels per second
-const PLAYER_MISSILE_RECHARGE_MS: int = 300  # milliseconds
-const PLAYER_MISSILE_VELOCITY: float = 400.0  # pixels per second
+const PLAYER_VELOCITY: float = 90.0  # pixels per second
+const PLAYER_MISSILE_RECHARGE_MS: int = 750  # milliseconds
+const PLAYER_MISSILE_VELOCITY: float = 200.0  # pixels per second
 const MAX_MISSILES: int = 10
+
+# Bomb velocities (pixels per second)
+const ABOMB_VELOCITY: float = 80.0
+const DBOMB_VELOCITY: float = 100.0
 
 # Shield constants
 const MAX_SHIELDS_TICKS: int = 50000  # 50 seconds worth
@@ -29,24 +31,25 @@ const MAX_ALIENA_BOMBS: int = 25
 const ALIENA_SCORE: int = 10
 
 # Alien Type B - Tank (multi-hit, decorative)
-const ALIENB_SCORE: int = 25
+const ALIENB_SCORE: int = 10
 
 # Alien Type C - Aggressive attacker
 const ALIENC_ATTACK_RANGE: int = 48  # pixels
 const ALIENC_ATTACK_INTERVAL_MS: int = 8000
-const ALIENC_SCORE: int = 50
+const ALIENC_SCORE: int = 10
 
 # Alien Type D - Orbital bomber
-const ALIEND_BOMB_INTERVAL_MS: int = 5000
+const ALIEND_BOMB_INTERVAL_MS: int = 4000
 const MAX_ALIEND_BOMBS: int = 25
-const ALIEND_SCORE: int = 50
+const ALIEND_SCORE: int = 25
 
 # Alien Type E - Advanced enemy
 const ALIENE_ATTACK_INTERVAL_MS: int = 15000
-const ALIENE_ATTACK_TURN_INTERVAL_MS: int = 3500
+const ALIENE_ATTACK_TURN_MIN_MS: int = 2500
+const ALIENE_ATTACK_TURN_MAX_MS: int = 4500
 const ALIENE_IDLE_BOMB_INTERVAL_MS: int = 10000
 const ALIENE_ATTACK_BOMB_INTERVAL_MS: int = 2000
-const ALIENE_SCORE: int = 75
+const ALIENE_SCORE: int = 10
 
 # Scoring multipliers
 const MULTIPLIER_2X: float = 2.0
@@ -92,6 +95,13 @@ const ALIENA_ANIM_MS: int = 50
 const ALIENA_EXPLOSION_MS: int = 10
 const MISSILE_ANIM_MS: int = 100
 
+# Animation loop types (VB6 compatible)
+const ANIM_LOOP_NONE: int = 0
+const ANIM_LOOP_ONE_WAY: int = 1
+const ANIM_LOOP_TWO_WAY: int = 2
+const ANIM_LOOP_NONE_REVERSE: int = 3
+const ANIM_LOOP_ONE_WAY_REVERSE: int = 4
+
 # Collision constants
 const DONT_MARCH: int = -1
 
@@ -105,8 +115,16 @@ const NUM_STARS: int = 50
 const MAX_BONUSES: int = 20
 
 # Planet timing
-const PLANET_INTERVAL_MS: int = 15000
+const PLANET_INTERVAL_MS: int = 30000
 const PLANET_DURATION_MS: int = 5000
+
+# XBonus timing
+const XBONUS_INTERVAL_MS: int = 30000
+const XBONUS_DURATION_MS: int = 4500
+
+# Cargo ship timing
+const CARGO_SHIP_LONGEST_WAIT_MS: int = 30000
+const CARGO_SHIP_VELOCITY: float = 50.0
 
 # Level 1 alien counts
 const LEVEL1_ALIENSA: int = 20

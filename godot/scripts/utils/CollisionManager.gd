@@ -15,8 +15,8 @@ var quadrant_height: float
 var quadrants: Array = []
 
 # Play area dimensions
-var play_width: float = GameConstants.SCREEN_WIDTH
-var play_height: float = GameConstants.PLAY_HEIGHT
+var play_width: float = Constants.SCREEN_WIDTH
+var play_height: float = Constants.PLAY_HEIGHT
 
 func _ready():
 	_initialize_grid()
@@ -101,7 +101,7 @@ func check_collision(actor1: Actor, actor2: Actor) -> bool:
 	
 	return bounds1.intersects(bounds2)
 
-func check_collisions_for_actors(group1: Array[Actor], group2: Array[Actor]) -> Array:
+func check_collisions_for_actors(group1: Array, group2: Array) -> Array:
 	# Returns array of collision pairs: [[actor1, actor2], ...]
 	var collisions = []
 	
@@ -109,12 +109,14 @@ func check_collisions_for_actors(group1: Array[Actor], group2: Array[Actor]) -> 
 	clear_all_quadrants()
 	
 	# Add all actors from group2 to quadrants
-	for actor in group2:
+	for entry in group2:
+		var actor = entry as Actor
 		if actor and not actor.is_deleted:
 			add_actor_to_quadrants(actor)
 	
 	# Check each actor in group1 against nearby actors in group2
-	for actor1 in group1:
+	for entry1 in group1:
+		var actor1 = entry1 as Actor
 		if actor1 and not actor1.is_deleted:
 			var nearby = get_nearby_actors(actor1)
 			for actor2 in nearby:

@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://$(uuidgen | cut -c1-13)"
-path="res://.godot/imported/${f}-$(uuidgen).sample"
+uid="uid://blx3flknm5jji"
+path="res://.godot/imported/laser.wav-337a38cc5c02214f545c9f4b06c3f800.sample"
 
 [deps]
 
-source_file="res://assets/audio/${f}"
-dest_files=["res://.godot/imported/${f}-$(uuidgen).sample"]
+source_file="res://assets/audio/laser.wav"
+dest_files=["res://.godot/imported/laser.wav-337a38cc5c02214f545c9f4b06c3f800.sample"]
 
 [params]
 

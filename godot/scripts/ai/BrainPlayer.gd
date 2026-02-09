@@ -16,10 +16,10 @@ enum State {
 var state: State = State.NORMAL
 
 # Movement
-var velocity: float = GameConstants.PLAYER_VELOCITY
+var velocity: float = Constants.PLAYER_VELOCITY
 
 # Firing system
-var missile_recharge_ticks: float = GameConstants.PLAYER_MISSILE_RECHARGE_MS
+var missile_recharge_ticks: float = Constants.PLAYER_MISSILE_RECHARGE_MS
 var ticks_since_last_missile: float = 0.0
 
 # Input flags
@@ -29,7 +29,8 @@ var stop_move_requested: bool = false
 var missile_requested: bool = false
 var shields_requested: bool = false
 
-func reset_state() -> void:
+
+func reset_brain_state() -> void:
 	state = State.NORMAL
 	ticks_since_last_missile = missile_recharge_ticks
 	
@@ -38,8 +39,10 @@ func reset_state() -> void:
 		actor.stop_at_border_right = true
 		actor.stop_at_border_top = true
 		actor.stop_at_border_bottom = true
-		actor.can_be_hit_by_missiles = false  # Player hit by bombs, not missiles
+		actor.can_be_hit_by_missiles = true
 		actor.velocity_magnitude = 0.0
+		if actor.has_animation("normal"):
+			actor.play_animation("normal")
 
 func update_state(delta: float) -> void:
 	if not actor or not level:
@@ -66,18 +69,23 @@ func update_state(delta: float) -> void:
 
 func _process_input() -> void:
 	# Get input state
-	move_left_requested = Input.is_action_pressed("move_left")
-	move_right_requested = Input.is_action_pressed("move_right")
+	move_left_requested = Input.is_action_pressed("move_left") or Input.is_action_pressed("ui_left")
+	move_right_requested = Input.is_action_pressed("move_right") or Input.is_action_pressed("ui_right")
 	stop_move_requested = not (move_left_requested or move_right_requested)
-	missile_requested = Input.is_action_pressed("fire_missile")
+	missile_requested = Input.is_action_pressed("fire_missile") or Input.is_action_pressed("ui_accept")
 	shields_requested = Input.is_action_pressed("activate_shields")
 
-func _update_normal_state(ticks_passed: float) -> void:
+func _update_normal_state(_ticks_passed: float) -> void:
 	# Check for hit
-	if actor.was_hit_by_missile:
+	if actor.was_hit_by_missile > 0:
+		actor.was_hit_by_missile = 0
 		state = State.EXPLODING
 		actor.velocity_magnitude = 0
 		actor.can_be_hit_by_missiles = false
+		if level.has_method("add_score"):
+			level.add_score(10)
+		if level.has_method("play_sound"):
+			level.play_sound("DOH3")
 		# Play explosion sound and animation
 		_play_explosion()
 		return
@@ -106,12 +114,10 @@ func _update_shields_state(ticks_passed: float) -> void:
 		# Play normal animation
 		_play_normal_animation()
 
-func _update_exploding_state(ticks_passed: float) -> void:
-	# Check if explosion animation is complete
-	if actor.animation_player and actor.animation_player.is_playing():
+func _update_exploding_state(_ticks_passed: float) -> void:
+	if actor.is_animation_playing():
 		return
-	
-	# Mark for deletion
+
 	actor.is_deleted = true
 	if level.has_method("on_player_death"):
 		level.on_player_death()
@@ -133,7 +139,7 @@ func _update_firing(ticks_passed: float) -> void:
 	
 	# Calculate recharge time needed (rapid fire halves recharge time)
 	var recharge_needed = missile_recharge_ticks
-	if level.has_method("has_rapid_fire") and level.has_rapid_fire():
+	if level.has_method("is_rapid_fire_enabled") and level.is_rapid_fire_enabled():
 		recharge_needed = missile_recharge_ticks / 2.0
 	
 	# Fire missile if requested and recharged
@@ -146,18 +152,18 @@ func _update_firing(ticks_passed: float) -> void:
 
 func _play_normal_animation() -> void:
 	# Play normal player animation
-	if actor.animation_player and actor.animation_player.has_animation("normal"):
-		actor.animation_player.play("normal")
+	if actor.has_animation("normal"):
+		actor.play_animation("normal")
 
 func _play_shields_animation() -> void:
 	# Play shields animation
-	if actor.animation_player and actor.animation_player.has_animation("shields"):
-		actor.animation_player.play("shields")
+	if actor.has_animation("shields"):
+		actor.play_animation("shields")
 
 func _play_explosion() -> void:
 	# Play explosion animation and sound
-	if actor.animation_player and actor.animation_player.has_animation("explode"):
-		actor.animation_player.play("explode")
+	if actor.has_animation("explode"):
+		actor.play_animation("explode")
 
 func _play_fire_sound() -> void:
 	# Play laser sound effect

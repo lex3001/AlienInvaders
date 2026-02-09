@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://$(uuidgen | cut -c1-13)"
-path="res://.godot/imported/${f}-$(uuidgen).sample"
+uid="uid://bvq8tb01r0fv2"
+path="res://.godot/imported/Splat.wav-767342fe7b2b30739fefe56c25034d25.sample"
 
 [deps]
 
-source_file="res://assets/audio/${f}"
-dest_files=["res://.godot/imported/${f}-$(uuidgen).sample"]
+source_file="res://assets/audio/Splat.wav"
+dest_files=["res://.godot/imported/Splat.wav-767342fe7b2b30739fefe56c25034d25.sample"]
 
 [params]
 

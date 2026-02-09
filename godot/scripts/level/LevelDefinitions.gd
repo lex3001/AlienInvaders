@@ -10,11 +10,11 @@ class_name LevelDefinitions
 static func get_level_1_data() -> Dictionary:
 	return {
 		"name": "Level 1 - The Beginning",
-		"aliens_a_count": GameConstants.LEVEL1_ALIENSA,
-		"aliens_b_count": GameConstants.LEVEL1_ALIENSB,
-		"aliens_c_count": GameConstants.LEVEL1_ALIENSC,
-		"aliens_d_count": GameConstants.LEVEL1_ALIENSD,
-		"aliens_e_count": GameConstants.LEVEL1_ALIENSE,
+		"aliens_a_count": Constants.LEVEL1_ALIENSA,
+		"aliens_b_count": Constants.LEVEL1_ALIENSB,
+		"aliens_c_count": Constants.LEVEL1_ALIENSC,
+		"aliens_d_count": Constants.LEVEL1_ALIENSD,
+		"aliens_e_count": Constants.LEVEL1_ALIENSE,
 		"formation_speed": 30.0,
 		"formation_march_distance": 400,
 		"alien_a_positions": [
@@ -48,11 +48,11 @@ static func get_level_1_data() -> Dictionary:
 static func get_level_2_data() -> Dictionary:
 	return {
 		"name": "Level 2 - Rising Challenge",
-		"aliens_a_count": GameConstants.LEVEL2_ALIENSA1 + GameConstants.LEVEL2_ALIENSA2,
-		"aliens_b_count": GameConstants.LEVEL2_ALIENSB,
-		"aliens_c_count": GameConstants.LEVEL2_ALIENSC,
-		"aliens_d_count": GameConstants.LEVEL2_ALIENSD,
-		"aliens_e_count": GameConstants.LEVEL2_ALIENSE,
+		"aliens_a_count": Constants.LEVEL2_ALIENSA1 + Constants.LEVEL2_ALIENSA2,
+		"aliens_b_count": Constants.LEVEL2_ALIENSB,
+		"aliens_c_count": Constants.LEVEL2_ALIENSC,
+		"aliens_d_count": Constants.LEVEL2_ALIENSD,
+		"aliens_e_count": Constants.LEVEL2_ALIENSE,
 		"formation_speed": 35.0,
 		"formation_march_distance": 350,
 		"alien_a_positions": [
@@ -149,17 +149,17 @@ static func get_level_data(level_number: int) -> Dictionary:
 # Sound definitions
 static func get_sound_definitions() -> Array[Dictionary]:
 	return [
-		{"name": "LASER", "file": "res://assets/audio/Laser.wav", "copies": 5},
-		{"name": "WHOOSH", "file": "res://assets/audio/Whoosh.wav", "copies": 5},
-		{"name": "BOOM1", "file": "res://assets/audio/Boom1.wav", "copies": 2},
-		{"name": "BOOM2", "file": "res://assets/audio/Boom2.wav", "copies": 2},
+		{"name": "LASER", "file": "res://assets/audio/laser.wav", "copies": 5},
+		{"name": "WHOOSH", "file": "res://assets/audio/whoosh.wav", "copies": 5},
+		{"name": "BOOM1", "file": "res://assets/audio/boom1.wav", "copies": 2},
+		{"name": "BOOM2", "file": "res://assets/audio/boom2.wav", "copies": 2},
 		{"name": "SPLAT", "file": "res://assets/audio/Splat.wav", "copies": 1},
-		{"name": "DOH2", "file": "res://assets/audio/Doh2.wav", "copies": 1},
-		{"name": "DOH3", "file": "res://assets/audio/Doh3.wav", "copies": 1},
-		{"name": "HEYHEYHEY", "file": "res://assets/audio/HeyHeyHey.wav", "copies": 1},
-		{"name": "GRUNT1", "file": "res://assets/audio/Grunt1.wav", "copies": 5},
-		{"name": "TYPE", "file": "res://assets/audio/Type.wav", "copies": 10},
-		{"name": "APACHELOOP1", "file": "res://assets/audio/ApacheLoop1.wav", "copies": 1},
+		{"name": "DOH2", "file": "res://assets/audio/doh2.wav", "copies": 1},
+		{"name": "DOH3", "file": "res://assets/audio/doh3.wav", "copies": 1},
+		{"name": "HEYHEYHEY", "file": "res://assets/audio/heyheyhey.wav", "copies": 1},
+		{"name": "GRUNT1", "file": "res://assets/audio/grunt1.wav", "copies": 5},
+		{"name": "TYPE", "file": "res://assets/audio/type.wav", "copies": 10},
+		{"name": "APACHELOOP1", "file": "res://assets/audio/apacheloop1.wav", "copies": 1},
 		{"name": "SLUDGE", "file": "res://assets/audio/Sludge.wav", "copies": 1},
 		{"name": "PHONE", "file": "res://assets/audio/Phone.wav", "copies": 1}
 	]

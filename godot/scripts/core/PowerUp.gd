@@ -7,7 +7,7 @@ extends Actor
 class_name PowerUp
 
 # Power-up type
-var power_up_type: GameConstants.PowerUpType = GameConstants.PowerUpType.NONE
+var power_up_type: Constants.PowerUpType = Constants.PowerUpType.NONE
 
 # Power-up value (for score bonuses)
 var value: int = 0
@@ -38,35 +38,35 @@ func apply_to_level(target_level: Level) -> void:
 		return
 	
 	match power_up_type:
-		GameConstants.PowerUpType.DOUBLE_SHOT:
+		Constants.PowerUpType.DOUBLE_SHOT:
 			target_level.has_double_shots = true
-		GameConstants.PowerUpType.RAPID_FIRE:
+		Constants.PowerUpType.RAPID_FIRE:
 			target_level.has_rapid_fire = true
-		GameConstants.PowerUpType.MULTI_SHOT:
+		Constants.PowerUpType.MULTI_SHOT:
 			target_level.has_multi_shots = true
-		GameConstants.PowerUpType.SHIELD_RECHARGE:
-			target_level.shields_left += GameConstants.STARTING_SHIELDS_TICKS / 2
-			if target_level.shields_left > GameConstants.MAX_SHIELDS_TICKS:
-				target_level.shields_left = GameConstants.MAX_SHIELDS_TICKS
-		GameConstants.PowerUpType.EXTRA_LIFE:
+		Constants.PowerUpType.SHIELD_RECHARGE:
+			target_level.shields_left += int(Constants.STARTING_SHIELDS_TICKS / 2.0)
+			if target_level.shields_left > Constants.MAX_SHIELDS_TICKS:
+				target_level.shields_left = Constants.MAX_SHIELDS_TICKS
+		Constants.PowerUpType.EXTRA_LIFE:
 			if target_level.game:
 				target_level.game.add_life()
-		GameConstants.PowerUpType.SCORE_BONUS:
+		Constants.PowerUpType.SCORE_BONUS:
 			if target_level.game:
 				target_level.game.add_score(value)
-		GameConstants.PowerUpType.CARGO_DROP:
+		Constants.PowerUpType.CARGO_DROP:
 			# Cargo drop gives random bonus
 			if target_level.game:
-				target_level.game.add_score(randi_range(GameConstants.BONUS_MIN, GameConstants.BONUS_MAX))
+				target_level.game.add_score(randi_range(Constants.BONUS_MIN, Constants.BONUS_MAX))
 
-static func create_random_powerup() -> GameConstants.PowerUpType:
+static func create_random_powerup() -> Constants.PowerUpType:
 	var types = [
-		GameConstants.PowerUpType.DOUBLE_SHOT,
-		GameConstants.PowerUpType.RAPID_FIRE,
-		GameConstants.PowerUpType.MULTI_SHOT,
-		GameConstants.PowerUpType.SHIELD_RECHARGE,
-		GameConstants.PowerUpType.EXTRA_LIFE,
-		GameConstants.PowerUpType.SCORE_BONUS,
-		GameConstants.PowerUpType.CARGO_DROP
+		Constants.PowerUpType.DOUBLE_SHOT,
+		Constants.PowerUpType.RAPID_FIRE,
+		Constants.PowerUpType.MULTI_SHOT,
+		Constants.PowerUpType.SHIELD_RECHARGE,
+		Constants.PowerUpType.EXTRA_LIFE,
+		Constants.PowerUpType.SCORE_BONUS,
+		Constants.PowerUpType.CARGO_DROP
 	]
 	return types[randi() % types.size()]

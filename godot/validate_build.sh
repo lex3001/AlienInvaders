@@ -9,7 +9,8 @@ echo "║  Alien Invaders - Build Validation    ║"
 echo "╚════════════════════════════════════════╝"
 echo ""
 
-PROJECT_DIR="/home/runner/work/AlienInvaders/AlienInvaders/godot"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="${PROJECT_DIR:-$SCRIPT_DIR}"
 cd "$PROJECT_DIR"
 
 ERRORS=0

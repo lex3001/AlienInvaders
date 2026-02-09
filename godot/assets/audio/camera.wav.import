@@ -2,13 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://$(uuidgen | cut -c1-13)"
-path="res://.godot/imported/${f}-$(uuidgen).sample"
+uid="uid://ddnlw1qtw4ov4"
+path="res://.godot/imported/camera.wav-e326bdd4f3ef941259f67625fe57fd57.sample"
 
 [deps]
 
-source_file="res://assets/audio/${f}"
-dest_files=["res://.godot/imported/${f}-$(uuidgen).sample"]
+source_file="res://assets/audio/camera.wav"
+dest_files=["res://.godot/imported/camera.wav-e326bdd4f3ef941259f67625fe57fd57.sample"]
 
 [params]
 
