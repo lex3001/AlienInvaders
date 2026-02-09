@@ -114,11 +114,13 @@ func save_to_file(path: String) -> void:
 		data.append(score ^ score_key)
 		
 		# Fill padding with random encrypted values (positions 52-127)
+		# VB6 uses: Int(Rnd * &H7FFF) * IIf(CInt(Rnd * 1) = 1, 1, -1)
+		# This creates random values in range [-32766, +32766] for obfuscation
 		for i in range(52, 128):
 			var key2 = _get_key(i, record_index)
-			var random_value = randi() % 0x7FFF
+			var random_value = randi() % 0x7FFF  # Range: [0, 32766]
 			if randi() % 2 == 1:
-				random_value = -random_value
+				random_value = -random_value  # Make negative half the time
 			checksum += random_value
 			data.append(random_value ^ key2)
 		

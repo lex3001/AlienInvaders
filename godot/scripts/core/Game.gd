@@ -337,11 +337,13 @@ func save_high_scores() -> void:
 		high_scores.save_to_file("user://AI.HS")
 
 func load_high_score() -> void:
-	# Legacy method for compatibility
+	# Legacy method retained for backwards compatibility with existing code that calls load_high_score()
+	# Delegates to the new load_high_scores() method
 	load_high_scores()
 
 func save_high_score() -> void:
-	# Legacy method for compatibility  
+	# Legacy method retained for backwards compatibility with existing code that calls save_high_score()
+	# Delegates to the new save_high_scores() method
 	save_high_scores()
 
 func _setup_high_score_entry() -> void:
