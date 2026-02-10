@@ -18,7 +18,7 @@ func reset_brain_state() -> void:
 		actor.must_be_destroyed = false
 		_play_normal_animation()
 
-func update_state(delta: float) -> void:
+func update_state(_delta: float) -> void:
 	if not actor or not level:
 		return
 	_update_normal_state()

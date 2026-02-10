@@ -10,6 +10,8 @@ var instruction_label: Label = null
 var score_labels: Array[Label] = []
 var last_score_label: Label = null
 var high_scores = null
+var name_entry_blink_ms: float = 0.0
+var name_entry_blink_on: bool = true
 
 func _ready():
 	_set_full_rect()
@@ -21,6 +23,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not visible:
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
+		if game and game.waiting_for_high_score_entry:
+			_handle_high_score_input(event)
+			return
 		var key = event.keycode
 		if key == KEY_ESCAPE:
 			get_tree().quit()
@@ -56,21 +61,21 @@ func _build_ui() -> void:
 	var score_base_y = 250
 
 	title_label = Label.new()
-	title_label.size = Vector2(Constants.SCREEN_WIDTH, 24)
-	title_label.position = Vector2(0, center_y - title_label.size.y - 9)
-	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.add_theme_color_override("font_color", Color(0.77, 0.77, 0.25))
 	title_label.add_theme_font_size_override("font_size", 18)
 	title_label.text = "Alien Invaders --- <ENTER> zu starten"
+	var title_size = title_label.get_minimum_size()
+	title_label.size = title_size
+	title_label.position = Vector2((Constants.SCREEN_WIDTH - title_size.x) / 2.0, center_y - title_size.y - 9)
 	add_child(title_label)
 
 	instruction_label = Label.new()
-	instruction_label.size = Vector2(Constants.SCREEN_WIDTH, 24)
-	instruction_label.position = Vector2(0, center_y - instruction_label.size.y + 7)
-	instruction_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	instruction_label.add_theme_color_override("font_color", Color(0.0, 0.38, 0.75))
 	instruction_label.add_theme_font_size_override("font_size", 14)
 	instruction_label.text = "<linke/rechte Pfeile> links/rechts, <SHIFT> schiessen, <ALT> schuetzen, <Leertaste> stoppen"
+	var instruction_size = instruction_label.get_minimum_size()
+	instruction_label.size = instruction_size
+	instruction_label.position = Vector2((Constants.SCREEN_WIDTH - instruction_size.x) / 2.0, center_y - instruction_size.y + 7)
 	add_child(instruction_label)
 
 	score_labels.clear()
@@ -93,8 +98,11 @@ func _build_ui() -> void:
 	add_child(last_score_label)
 
 func _load_scores() -> void:
-	high_scores = HighScoresScript.new()
-	high_scores.load_default()
+	if game is Game and (game as Game).high_scores:
+		high_scores = (game as Game).high_scores
+	else:
+		high_scores = HighScoresScript.new()
+		high_scores.load_default()
 
 func refresh_from_game() -> void:
 	if score_labels.is_empty():
@@ -103,6 +111,16 @@ func refresh_from_game() -> void:
 	_load_scores()
 	_refresh_scores()
 
+func _process(delta: float) -> void:
+	if not visible:
+		return
+	if game and game.waiting_for_high_score_entry:
+		name_entry_blink_ms += delta * 1000.0
+		if name_entry_blink_ms > 500.0:
+			name_entry_blink_ms = 0.0
+			name_entry_blink_on = not name_entry_blink_on
+		_refresh_scores()
+
 func _refresh_scores() -> void:
 	if high_scores == null or score_labels.size() < 10:
 		return
@@ -110,6 +128,11 @@ func _refresh_scores() -> void:
 		var entry = high_scores.scores[i]
 		var score_text = str(entry["score"]).pad_zeros(8)
 		var name_text = entry["name"]
+		var color = Color(0.38, 0.75, 0.38)
+		if game and game.waiting_for_high_score_entry and game.high_score_entry_index == i:
+			color = Color(0.75, 0.38, 0.38)
+			name_text = _apply_entry_cursor(name_text, game.high_score_cursor_pos)
+		score_labels[i].add_theme_color_override("font_color", color)
 		score_labels[i].text = str(i + 1) + ". " + score_text + "  " + name_text
 
 	if game and game.last_score > 0:
@@ -121,4 +144,57 @@ func _refresh_scores() -> void:
 func _start_level(level_num: int) -> void:
 	if game:
 		game.start_game_at_level(level_num)
+
+func _apply_entry_cursor(name_text: String, cursor_pos: int) -> String:
+	var padded = name_text.rpad(max(cursor_pos, name_text.length()), " ")
+	if name_entry_blink_on:
+		return padded.substr(0, cursor_pos) + "|" + padded.substr(cursor_pos)
+	return padded.substr(0, cursor_pos) + " " + padded.substr(cursor_pos)
+
+func _handle_high_score_input(event: InputEventKey) -> void:
+	if not game or not high_scores:
+		return
+	var entry_name = game.high_score_entry_name
+	var cursor = game.high_score_cursor_pos
+	var key = event.keycode
+
+	if key == KEY_ENTER or key == KEY_KP_ENTER:
+		game.finish_high_score_entry()
+		return
+	if key == KEY_LEFT:
+		cursor = max(cursor - 1, 0)
+		game.update_high_score_entry_name(entry_name, cursor)
+		return
+	if key == KEY_RIGHT:
+		cursor = min(cursor + 1, entry_name.length())
+		game.update_high_score_entry_name(entry_name, cursor)
+		return
+	if key == KEY_BACKSPACE:
+		if cursor > 0 and entry_name.length() > 0:
+			entry_name = entry_name.substr(0, cursor - 1) + entry_name.substr(cursor)
+			cursor -= 1
+			game.update_high_score_entry_name(entry_name, cursor)
+		return
+	if key == KEY_DELETE:
+		if cursor < entry_name.length():
+			entry_name = entry_name.substr(0, cursor) + entry_name.substr(cursor + 1)
+			game.update_high_score_entry_name(entry_name, cursor)
+		return
+
+	if event.unicode <= 0:
+		return
+	var ch = char(event.unicode)
+	if not _is_allowed_name_char(ch):
+		return
+	if entry_name.length() >= 50:
+		return
+	entry_name = entry_name.substr(0, cursor) + ch + entry_name.substr(cursor)
+	cursor += 1
+	game.update_high_score_entry_name(entry_name, cursor)
+
+func _is_allowed_name_char(ch: String) -> bool:
+	if ch == " ":
+		return true
+	var code = ch.unicode_at(0)
+	return (code >= 48 and code <= 57) or (code >= 65 and code <= 90) or (code >= 97 and code <= 122)
 

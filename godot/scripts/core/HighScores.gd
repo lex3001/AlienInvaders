@@ -27,6 +27,18 @@ const KEYS = [
 
 var scores: Array[Dictionary] = []
 
+func _to_int32(value: int) -> int:
+	var v = value & 0xFFFFFFFF
+	if v > 0x7FFFFFFF:
+		v -= 0x100000000
+	return v
+
+func _add_int32(a: int, b: int) -> int:
+	return _to_int32(a + b)
+
+func _xor_int32(a: int, b: int) -> int:
+	return _to_int32(a ^ b)
+
 func load_default() -> void:
 	if _ensure_user_file("AI.HS"):
 		load_from_file("user://AI.HS")
@@ -45,29 +57,29 @@ func load_from_file(path: String) -> void:
 	for record_index in range(1, 11):
 		var data: Array[int] = []
 		for i in range(128):
-			data.append(file.get_32())
+			data.append(_to_int32(file.get_32()))
 
 		var checksum: int = 0
 		var name_chars: PackedStringArray = []
 		for i in range(1, 51):
 			var key = _get_key(i, record_index)
-			var value = data[i - 1] ^ key
-			checksum += value
+			var value = _xor_int32(data[i - 1], key)
+			checksum = _add_int32(checksum, value)
 			name_chars.append(String.chr(value & 0xFF))
 
 		var score_key = _get_key(51, record_index)
-		var score = data[50] ^ score_key
-		checksum += score
+		var score = _xor_int32(data[50], score_key)
+		checksum = _add_int32(checksum, score)
 
 		for i in range(52, 128):
 			var key2 = _get_key(i, record_index)
-			var value2 = data[i - 1] ^ key2
-			checksum += value2
+			var value2 = _xor_int32(data[i - 1], key2)
+			checksum = _add_int32(checksum, value2)
 
 		var saved_key = _get_key(128, record_index)
-		var saved_checksum = data[127] ^ saved_key
+		var saved_checksum = _xor_int32(data[127], saved_key)
 		if saved_checksum != checksum:
-			score = 0
+			score = randi_range(1, 9) * 100
 
 		var name = "".join(name_chars).rstrip(" ")
 		scores.append({"name": name, "score": score})
@@ -90,6 +102,7 @@ func save_to_file(path: String) -> void:
 	for record_index in range(1, 11):
 		var data: Array[int] = []
 		var checksum: int = 0
+		var last_char_value: int = 32
 		
 		# Get score entry (or use empty if out of range)
 		var entry = scores[record_index - 1] if record_index - 1 < scores.size() else {"name": "", "score": 0}
@@ -105,32 +118,28 @@ func save_to_file(path: String) -> void:
 		for i in range(1, 51):
 			var key = _get_key(i, record_index)
 			var char_value = name.unicode_at(i - 1) & 0xFF
-			checksum += char_value
-			data.append(char_value ^ key)
+			last_char_value = char_value
+			checksum = _add_int32(checksum, char_value)
+			data.append(_xor_int32(char_value, key))
 		
 		# Encrypt score (position 51)
 		var score_key = _get_key(51, record_index)
-		checksum += score
-		data.append(score ^ score_key)
+		checksum = _add_int32(checksum, score)
+		data.append(_xor_int32(score, score_key))
 		
-		# Fill padding with random encrypted values (positions 52-127)
-		# VB6 uses: Int(Rnd * &H7FFF) * IIf(CInt(Rnd * 1) = 1, 1, -1)
-		# This creates random values in range [-32766, +32766] for obfuscation
+		# Fill padding to match VB6 (uses last name character, not random)
 		for i in range(52, 128):
 			var key2 = _get_key(i, record_index)
-			var random_value = randi() % 0x7FFF  # Range: [0, 32766]
-			if randi() % 2 == 1:
-				random_value = -random_value  # Make negative half the time
-			checksum += random_value
-			data.append(random_value ^ key2)
+			checksum = _add_int32(checksum, last_char_value)
+			data.append(_xor_int32(last_char_value, key2))
 		
 		# Add checksum at position 128
 		var checksum_key = _get_key(128, record_index)
-		data.append(checksum ^ checksum_key)
+		data.append(_xor_int32(checksum, checksum_key))
 		
 		# Write all 128 values
 		for value in data:
-			file.store_32(value)
+			file.store_32(_to_int32(value))
 	
 	file.close()
 
@@ -154,6 +163,10 @@ func add_score(player_name: String, score_value: int) -> int:
 	scores[insert_index] = {"name": player_name, "score": score_value}
 	
 	return insert_index
+
+func set_player(index: int, player_name: String) -> void:
+	if index >= 0 and index < scores.size():
+		scores[index] = {"name": player_name, "score": scores[index].score}
 
 func get_score(index: int) -> Dictionary:
 	if index >= 0 and index < scores.size():

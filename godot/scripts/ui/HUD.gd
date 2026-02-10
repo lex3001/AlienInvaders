@@ -132,17 +132,17 @@ func _set_digits(digits: Array[Sprite2D], value: int, count: int, leading_zeros:
 	var start = count - raw.length()
 	for i in range(count):
 		var sprite = digits[i]
-		var visible = true
+		var digit_visible = true
 		var digit_value = 0
 		if i < start:
 			if leading_zeros:
 				digit_value = 0
 			else:
-				visible = false
+				digit_visible = false
 		else:
 			digit_value = int(raw[i - start])
-		sprite.visible = visible
-		if visible:
+		sprite.visible = digit_visible
+		if digit_visible:
 			sprite.region_rect = Rect2(digit_value * DIGIT_W, DIGIT_SRC_Y, DIGIT_W, DIGIT_H)
 
 func _update_multiplier(multiplier: int) -> void:

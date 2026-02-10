@@ -43,7 +43,7 @@ func reset_brain_state() -> void:
 	actor.hit_player = false
 
 	if cargo_type == CargoType.RANDOM:
-		selected_cargo_type = randi_range(0, 5)
+		selected_cargo_type = CargoType.values()[randi_range(1, 6)]
 	else:
 		selected_cargo_type = cargo_type
 

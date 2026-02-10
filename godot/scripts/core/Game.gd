@@ -26,6 +26,7 @@ var multiplier_timer: float = 0.0
 var has_double_shot: bool = false
 var has_rapid_fire: bool = false
 var has_multi_shot: bool = false
+var has_safety_pin: bool = false
 
 # Frame timing
 var accumulated_time: float = 0.0
@@ -35,6 +36,16 @@ var frame_count: int = 0
 # Player death delay handling
 var death_wait_ms: float = 0.0
 var waiting_for_respawn: bool = false
+
+# Level finished sequence (VB6-style stats/tally)
+var level_finish_state: int = 0
+var level_finish_tick_ms: float = 0.0
+var level_finish_chunk_ms: float = 0.0
+var level_finish_total_bonus: int = 0
+var level_finish_bonus: int = 0
+var level_finish_multiplier: int = 1
+var level_finish_level: int = 1
+var level_finish_active: bool = false
 
 # Level reference
 var level: Node = null
@@ -46,11 +57,15 @@ const StarfieldScript = preload("res://scripts/ui/Starfield.gd")
 var starfield = null
 var title_screen: Node = null
 var hud: Node = null
+var level_finished_screen: Node = null
+var fps_label: Label = null
 
 # High scores
 var high_scores: HighScores = null
-var high_score_entry: Node = null
 var waiting_for_high_score_entry: bool = false
+var high_score_entry_index: int = -1
+var high_score_cursor_pos: int = 0
+var high_score_entry_name: String = ""
 
 # Signals
 signal score_changed(new_score: int)
@@ -64,9 +79,10 @@ func _ready():
 	_setup_background()
 	_find_title_screen()
 	_find_hud()
-	_setup_high_score_entry()
+	_find_level_finished_screen()
 	_sync_title_screen_visibility()
 	_apply_initial_window_scale()
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	load_high_scores()
 	reset_game()
 
@@ -75,6 +91,7 @@ func _process(delta: float) -> void:
 	ticks_passed = delta * 1000.0  # Convert to milliseconds
 	accumulated_time += delta
 	frame_count += 1
+	_update_fps_label()
 	
 	# Update based on game state
 	match game_state:
@@ -93,13 +110,6 @@ func _process_menu(_delta: float) -> void:
 	pass
 
 func _process_playing(delta: float) -> void:
-	# Update shields
-	if shields_on:
-		shields_left -= int(ticks_passed)
-		if shields_left <= 0:
-			shields_left = 0
-			shields_on = false
-	
 	# Update multiplier timer
 	if multiplier_timer > 0:
 		multiplier_timer -= delta
@@ -109,6 +119,8 @@ func _process_playing(delta: float) -> void:
 	# Update level
 	if level != null:
 		level.update_level(delta)
+		_sync_powerups_from_level()
+		_sync_shields_from_level()
 		if level.is_player_dead_state():
 			_handle_player_death(delta)
 			# Stop processing if game ended
@@ -139,8 +151,13 @@ func _process_game_over(_delta: float) -> void:
 		change_state(Constants.GameState.MENU)
 
 func _process_level_complete(_delta: float) -> void:
-	# Wait for input to continue to next level
-	if Input.is_action_just_pressed("ui_accept"):
+	if not level_finish_active:
+		_start_level_finish_sequence()
+		return
+
+	_update_level_finish_screen()
+	if _advance_level_finish_state():
+		_end_level_finish_sequence()
 		next_level()
 
 func reset_game() -> void:
@@ -153,6 +170,7 @@ func reset_game() -> void:
 	has_double_shot = false
 	has_rapid_fire = false
 	has_multi_shot = false
+	has_safety_pin = false
 	
 	emit_signal("score_changed", score)
 	emit_signal("lives_changed", lives)
@@ -173,6 +191,8 @@ func load_level(level_num: int) -> void:
 		level = null
 	waiting_for_respawn = false
 	death_wait_ms = 0.0
+	level_finish_active = false
+	level_finish_tick_ms = 0.0
 	
 	# Load level scene
 	var level_scene = load("res://scenes/Level.tscn")
@@ -180,19 +200,22 @@ func load_level(level_num: int) -> void:
 		level = level_scene.instantiate()
 		add_child(level)
 		level.initialize_level(level_num, self)
+		_apply_powerups_to_level()
+		_apply_shields_to_level()
+		level.visible = true
 
 func complete_level() -> void:
 	change_state(Constants.GameState.LEVEL_COMPLETE)
 	emit_signal("level_complete")
+	if level:
+		level.visible = false
+	_start_level_finish_sequence()
 
 func next_level() -> void:
 	current_level += 1
-	if current_level > 3:  # Assuming 3 levels
-		# Game complete - show victory screen
-		change_state(Constants.GameState.GAME_OVER)
-	else:
-		change_state(Constants.GameState.PLAYING)
-		load_level(current_level)
+	current_level = ((current_level - 1) % 3) + 1
+	change_state(Constants.GameState.PLAYING)
+	load_level(current_level)
 
 func add_score(points: int) -> void:
 	var adjusted_points = int(points * score_multiplier)
@@ -202,6 +225,13 @@ func add_score(points: int) -> void:
 		high_score = score
 		save_high_score()
 	
+	emit_signal("score_changed", score)
+
+func _add_score_direct(points: int) -> void:
+	score += points
+	if score > high_score:
+		high_score = score
+		save_high_score()
 	emit_signal("score_changed", score)
 
 func lose_life() -> void:
@@ -227,7 +257,7 @@ func end_game() -> void:
 	
 	# Check if score qualifies for high score table
 	if high_scores and high_scores.is_high_score(score):
-		_show_high_score_entry()
+		_start_high_score_entry()
 	else:
 		waiting_for_high_score_entry = false
 
@@ -253,6 +283,8 @@ func _handle_player_death(delta: float) -> void:
 			level_node.has_double_shots = false
 			level_node.has_multi_shots = false
 			level_node.has_rapid_fire = false
+		_sync_powerups_from_level()
+		_sync_shields_from_level()
 
 	lose_life()
 	if lives <= 0:
@@ -285,6 +317,15 @@ func _setup_background() -> void:
 	starfield.play_rect = Rect2(0, Constants.TOP_BORDER, Constants.SCREEN_WIDTH, Constants.PLAY_HEIGHT)
 	background_layer.add_child(starfield)
 
+	fps_label = Label.new()
+	fps_label.position = Vector2(Constants.SCREEN_WIDTH - 80, 0)
+	fps_label.size = Vector2(80, 14)
+	fps_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	fps_label.add_theme_color_override("font_color", Color(0.75, 0.38, 0.38))
+	fps_label.add_theme_font_size_override("font_size", 12)
+	fps_label.visible = false
+	background_layer.add_child(fps_label)
+
 	add_child(background_layer)
 
 func _find_title_screen() -> void:
@@ -299,6 +340,11 @@ func _find_hud() -> void:
 	if hud and hud.has_method("set_game"):
 		hud.set_game(self)
 
+func _find_level_finished_screen() -> void:
+	if get_parent() == null:
+		return
+	level_finished_screen = get_parent().get_node_or_null("LevelFinished")
+
 func _sync_title_screen_visibility() -> void:
 	if title_screen:
 		var show_menu = game_state == Constants.GameState.MENU or game_state == Constants.GameState.GAME_OVER
@@ -307,6 +353,89 @@ func _sync_title_screen_visibility() -> void:
 			title_screen.refresh_from_game()
 	if starfield:
 		starfield.visible = game_state != Constants.GameState.MENU
+	if level_finished_screen:
+		level_finished_screen.visible = game_state == Constants.GameState.LEVEL_COMPLETE
+		if game_state != Constants.GameState.LEVEL_COMPLETE:
+			level_finished_screen.visible = false
+	if fps_label:
+		fps_label.visible = game_state == Constants.GameState.PLAYING or game_state == Constants.GameState.PAUSED or game_state == Constants.GameState.LEVEL_COMPLETE
+
+func _update_fps_label() -> void:
+	if not fps_label:
+		return
+	if ticks_passed <= 0.0:
+		fps_label.text = ""
+		return
+	var avg_fps = 0.0
+	if accumulated_time > 0.0:
+		avg_fps = float(frame_count) / accumulated_time
+	var inst_fps = 1000.0 / ticks_passed
+	var avg_int = int(clampf(avg_fps, 0.0, 99.0))
+	var inst_int = int(clampf(inst_fps, 0.0, 99.0))
+	fps_label.text = "%02d/%02dfps" % [avg_int, inst_int]
+
+func _start_level_finish_sequence() -> void:
+	if level_finish_active:
+		return
+	level_finish_level = current_level
+	level_finish_bonus = 0
+	level_finish_multiplier = 1
+	if level and level is Level:
+		var level_node = level as Level
+		level_finish_bonus = level_node.bonus
+		level_finish_multiplier = level_node.bonus_multiplier
+	level_finish_total_bonus = level_finish_bonus * level_finish_multiplier
+	level_finish_state = 0
+	level_finish_tick_ms = 0.0
+	level_finish_chunk_ms = 0.0
+	level_finish_active = true
+	_update_level_finish_screen()
+
+func _update_level_finish_screen() -> void:
+	if not level_finished_screen:
+		return
+	level_finished_screen.update_display(
+		level_finish_state,
+		level_finish_level,
+		level_finish_bonus,
+		level_finish_multiplier,
+		level_finish_total_bonus,
+		score
+	)
+
+func _advance_level_finish_state() -> bool:
+	# Returns true when the sequence is complete.
+	if level_finish_state == 6:
+		if level_finish_total_bonus > 0:
+			level_finish_chunk_ms += ticks_passed
+			if level_finish_chunk_ms < float(Constants.FRAME_TIME) * 1000.0:
+				return false
+			level_finish_chunk_ms = 0.0
+			if level and level.has_method("play_sound"):
+				level.play_sound("TYPE")
+			var chunk = min(100, level_finish_total_bonus)
+			_add_score_direct(chunk)
+			level_finish_total_bonus -= chunk
+			return false
+		level_finish_state += 1
+		level_finish_tick_ms = 0.0
+		level_finish_chunk_ms = 0.0
+		return false
+
+	level_finish_tick_ms += ticks_passed
+	if level_finish_tick_ms < float(Constants.END_LEVEL_PAUSE_MS):
+		return false
+	level_finish_tick_ms = 0.0
+	level_finish_state += 1
+	return level_finish_state > 9
+
+func _end_level_finish_sequence() -> void:
+	level_finish_active = false
+	level_finish_tick_ms = 0.0
+	level_finish_state = 0
+	level_finish_chunk_ms = 0.0
+	if level_finished_screen:
+		level_finished_screen.visible = false
 
 func _apply_initial_window_scale() -> void:
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
@@ -326,6 +455,38 @@ func add_shields(amount: int) -> void:
 func set_multiplier(multiplier: float, duration: float) -> void:
 	score_multiplier = multiplier
 	multiplier_timer = duration
+
+func _sync_powerups_from_level() -> void:
+	var level_node = level as Level
+	if not level_node:
+		return
+		has_double_shot = level_node.has_double_shots
+		has_multi_shot = level_node.has_multi_shots
+		has_rapid_fire = level_node.has_rapid_fire
+		has_safety_pin = level_node.has_safety_pin
+
+func _apply_powerups_to_level() -> void:
+	var level_node = level as Level
+	if not level_node:
+		return
+	level_node.has_double_shots = has_double_shot
+	level_node.has_multi_shots = has_multi_shot
+	level_node.has_rapid_fire = has_rapid_fire
+	level_node.has_safety_pin = has_safety_pin
+
+func _sync_shields_from_level() -> void:
+	var level_node = level as Level
+	if not level_node:
+		return
+	shields_left = level_node.shields_left
+	shields_on = level_node.shields_on
+
+func _apply_shields_to_level() -> void:
+	var level_node = level as Level
+	if not level_node:
+		return
+	level_node.shields_left = shields_left
+	level_node.shields_on = shields_on
 
 func load_high_scores() -> void:
 	# Load high scores from file
@@ -351,22 +512,27 @@ func save_high_score() -> void:
 	# Delegates to the new save_high_scores() method
 	save_high_scores()
 
-func _setup_high_score_entry() -> void:
-	# Create high score entry UI
-	const HighScoreEntryScript = preload("res://scripts/ui/HighScoreEntry.gd")
-	high_score_entry = HighScoreEntryScript.new()
-	high_score_entry.name_entered.connect(_on_high_score_name_entered)
-	add_child(high_score_entry)
-
-func _show_high_score_entry() -> void:
+func _start_high_score_entry() -> void:
+	if not high_scores:
+		waiting_for_high_score_entry = false
+		return
+	high_score_entry_index = high_scores.add_score("", score)
+	if high_score_entry_index < 0:
+		waiting_for_high_score_entry = false
+		return
 	waiting_for_high_score_entry = true
-	if high_score_entry and high_score_entry.has_method("show_entry"):
-		high_score_entry.show_entry(score)
+	high_score_entry_name = ""
+	high_score_cursor_pos = 0
+	save_high_scores()
 
-func _on_high_score_name_entered(player_name: String) -> void:
-	if high_scores:
-		high_scores.add_score(player_name, score)
-		save_high_scores()
-		if score > high_score:
-			high_score = score
+func update_high_score_entry_name(new_name: String, cursor_pos: int) -> void:
+	if not waiting_for_high_score_entry or not high_scores:
+		return
+	high_score_entry_name = new_name
+	high_score_cursor_pos = clampi(cursor_pos, 0, new_name.length())
+	high_scores.set_player(high_score_entry_index, new_name)
+	save_high_scores()
+
+func finish_high_score_entry() -> void:
 	waiting_for_high_score_entry = false
+

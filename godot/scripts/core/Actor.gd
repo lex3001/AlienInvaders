@@ -186,7 +186,7 @@ func _move_circular(_delta: float) -> void:
 	# Circular movement pattern (for specific alien types)
 	pass
 
-func _move_radial(delta: float) -> void:
+func _move_radial(_delta: float) -> void:
 	if radial_points.is_empty():
 		return
 	var index = int(radial_position) % 360

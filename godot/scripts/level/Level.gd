@@ -1128,7 +1128,7 @@ func _show_bonus(pos: Vector2, frame: int) -> void:
 	sprite.centered = false
 	sprite.region_enabled = true
 	var col = frame % 2
-	var row = int(frame / 2)
+	var row = int(frame / 2.0)
 	sprite.region_rect = Rect2(col * BONUS_FRAME_W, row * BONUS_FRAME_H, BONUS_FRAME_W, BONUS_FRAME_H)
 	sprite.position = Vector2(clamped_x, clamped_y)
 	add_child(sprite)
