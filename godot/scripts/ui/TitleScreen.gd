@@ -12,6 +12,7 @@ var last_score_label: Label = null
 var high_scores = null
 var name_entry_blink_ms: float = 0.0
 var name_entry_blink_on: bool = true
+var menu_font: Font = null
 
 func _ready():
 	_set_full_rect()
@@ -56,25 +57,30 @@ func _find_game() -> Game:
 	return get_parent().get_node_or_null("Game")
 
 func _build_ui() -> void:
+	menu_font = _create_menu_font()
 	var center_y = Constants.SCREEN_HEIGHT / 2.0
 	var line_height = 18
 	var score_base_y = 250
 
 	title_label = Label.new()
+	title_label.add_theme_font_override("font", menu_font)
 	title_label.add_theme_color_override("font_color", Color(0.77, 0.77, 0.25))
-	title_label.add_theme_font_size_override("font_size", 18)
+	title_label.add_theme_font_size_override("font_size", 12)
 	title_label.text = "Alien Invaders --- <ENTER> zu starten"
 	var title_size = title_label.get_minimum_size()
 	title_label.size = title_size
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.position = Vector2((Constants.SCREEN_WIDTH - title_size.x) / 2.0, center_y - title_size.y - 9)
 	add_child(title_label)
 
 	instruction_label = Label.new()
+	instruction_label.add_theme_font_override("font", menu_font)
 	instruction_label.add_theme_color_override("font_color", Color(0.0, 0.38, 0.75))
-	instruction_label.add_theme_font_size_override("font_size", 14)
+	instruction_label.add_theme_font_size_override("font_size", 12)
 	instruction_label.text = "<linke/rechte Pfeile> links/rechts, <SHIFT> schiessen, <ALT> schuetzen, <Leertaste> stoppen"
 	var instruction_size = instruction_label.get_minimum_size()
 	instruction_label.size = instruction_size
+	instruction_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	instruction_label.position = Vector2((Constants.SCREEN_WIDTH - instruction_size.x) / 2.0, center_y - instruction_size.y + 7)
 	add_child(instruction_label)
 
@@ -84,6 +90,7 @@ func _build_ui() -> void:
 		line.position = Vector2(0, score_base_y + ((i + 1) * line_height))
 		line.size = Vector2(Constants.SCREEN_WIDTH, line_height)
 		line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		line.add_theme_font_override("font", menu_font)
 		line.add_theme_color_override("font_color", Color(0.38, 0.75, 0.38))
 		line.add_theme_font_size_override("font_size", 14)
 		add_child(line)
@@ -93,9 +100,15 @@ func _build_ui() -> void:
 	last_score_label.position = Vector2(0, 450)
 	last_score_label.size = Vector2(Constants.SCREEN_WIDTH, 24)
 	last_score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	last_score_label.add_theme_font_override("font", menu_font)
 	last_score_label.add_theme_color_override("font_color", Color(0.75, 0.38, 0.38))
 	last_score_label.add_theme_font_size_override("font_size", 14)
 	add_child(last_score_label)
+
+func _create_menu_font() -> Font:
+	var font = SystemFont.new()
+	font.font_names = PackedStringArray(["MS Sans Serif", "Microsoft Sans Serif", "Tahoma", "Arial", "Helvetica", "Geneva"])
+	return font
 
 func _load_scores() -> void:
 	if game is Game and (game as Game).high_scores:

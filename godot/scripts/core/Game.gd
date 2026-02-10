@@ -207,6 +207,7 @@ func load_level(level_num: int) -> void:
 func complete_level() -> void:
 	change_state(Constants.GameState.LEVEL_COMPLETE)
 	emit_signal("level_complete")
+	_sync_powerups_from_level()
 	if level:
 		level.visible = false
 	_start_level_finish_sequence()
@@ -358,7 +359,7 @@ func _sync_title_screen_visibility() -> void:
 		if game_state != Constants.GameState.LEVEL_COMPLETE:
 			level_finished_screen.visible = false
 	if fps_label:
-		fps_label.visible = game_state == Constants.GameState.PLAYING or game_state == Constants.GameState.PAUSED or game_state == Constants.GameState.LEVEL_COMPLETE
+		fps_label.visible = false
 
 func _update_fps_label() -> void:
 	if not fps_label:
@@ -460,10 +461,10 @@ func _sync_powerups_from_level() -> void:
 	var level_node = level as Level
 	if not level_node:
 		return
-		has_double_shot = level_node.has_double_shots
-		has_multi_shot = level_node.has_multi_shots
-		has_rapid_fire = level_node.has_rapid_fire
-		has_safety_pin = level_node.has_safety_pin
+	has_double_shot = level_node.has_double_shots
+	has_multi_shot = level_node.has_multi_shots
+	has_rapid_fire = level_node.has_rapid_fire
+	has_safety_pin = level_node.has_safety_pin
 
 func _apply_powerups_to_level() -> void:
 	var level_node = level as Level
