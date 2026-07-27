@@ -1,6 +1,7 @@
 # Alien Invaders
 
 ![Alien Invaders title screen](godot/assets/TitleScreen.png)
+![Alien Invaders gameplay](godot/assets/Gameplay.png)
 
 A modernized **Godot 4.x** port of the original 1998–1999 Alien Invaders — a 2D shoot-em-up originally written in Visual Basic 6 with DirectX. The Godot version is the actively developed, current incarnation of the game; the original VB6 source is preserved alongside it for reference and history.
 
