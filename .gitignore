@@ -1,0 +1,14 @@
+# Ignore generated debug logs
+vb6/debug.log
+
+# VS Code workspace settings
+.vscode/settings.json
+.vscode/
+
+# Godot editor cache
+uid_cache.bin
+
+# Godot editor metadata/cache
+godot/.godot/
+# macOS system files
+.DS_Store
