@@ -7,15 +7,17 @@ A modernized **Godot 4.x** port of the original 1998–1999 Alien Invaders — a
 
 ## Play
 
-The game runs cross-platform (desktop + web) via Godot. To try it locally:
+**[Play in your browser](https://lex3001.github.io/AlienInvaders/)** — no install required.
+
+Controls: Arrow keys / A,D to move, Space to fire, Shift for shields.
+
+The game also runs natively via Godot. To try it locally:
 
 1. Install [Godot 4.3+](https://godotengine.org/download)
 2. Open the `godot/` folder as a project (`godot/project.godot`)
 3. Press **F5** to run
 
-Controls: Arrow keys / A,D to move, Space to fire, Shift for shields.
-
-A GitHub Actions workflow ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) builds a web export and can publish it to GitHub Pages — see [DEPLOY.md](DEPLOY.md) for setup.
+The web build is produced and published automatically by a GitHub Actions workflow ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) — see [DEPLOY.md](DEPLOY.md) for details.
 
 ## What's Here Today
 
