@@ -32,7 +32,7 @@ jobs:
         working-directory: godot
         run: |
           mkdir -p ../docs
-          godot --path . --export-release Web ../docs/index.html
+          godot --headless --path . --export-release Web ../docs/index.html
 
       - name: Commit and push if changed
         run: |
