@@ -130,12 +130,7 @@ func _ready():
 	collision_manager.play_y_offset = play_y_offset
 	collision_manager._initialize_grid()
 	add_child(collision_manager)
-	
-	# Initialize sound manager
-	sound_manager = SoundManager.new()
-	add_child(sound_manager)
-	sound_manager.load_all_game_sounds()
-	
+
 	# Create black mask to cover area below play area (below blue line)
 	var bottom_mask = ColorRect.new()
 	bottom_mask.color = Color.BLACK
@@ -156,9 +151,17 @@ func _assign_sprite(actor: Actor, texture: Texture2D, frame_size: Vector2i = Vec
 		actor.sprite.region_enabled = true
 		actor.sprite.region_rect = Rect2(Vector2.ZERO, Vector2(frame_size.x, frame_size.y))
 
+func _exit_tree() -> void:
+	# sound_manager now lives on Game and outlives this level, so make sure
+	# a looping sound started by this level doesn't keep playing after it's gone.
+	if alienf_loop_playing and sound_manager:
+		sound_manager.stop_loop_sound("ALIENF_LOOP")
+		alienf_loop_playing = false
+
 func initialize_level(p_level_number: int, p_game: Game) -> void:
 	level_number = p_level_number
 	game = p_game
+	sound_manager = game.sound_manager if game else null
 	is_player_dead = false
 	is_level_complete = false
 	bonus_multiplier = 1

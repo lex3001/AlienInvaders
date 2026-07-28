@@ -5,7 +5,7 @@
 extends Node
 
 # Test mode flag - enables debug features
-const TEST_MODE: bool = true
+const TEST_MODE: bool = false
 
 # Screen dimensions
 const SCREEN_WIDTH: int = 640

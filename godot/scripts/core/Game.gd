@@ -84,6 +84,9 @@ var game_over_typed_index: int = 0
 var game_over_type_timer: float = 0.0
 var game_over_next_type_delay: float = 0.0
 
+# Sound (persistent across level reloads to avoid churning AudioStreamPlayer nodes)
+var sound_manager: SoundManager = null
+
 # High scores
 var high_scores: HighScores = null
 var waiting_for_high_score_entry: bool = false
@@ -107,6 +110,7 @@ func _ready():
 	_sync_title_screen_visibility()
 	_apply_initial_window_scale()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+	_setup_sound_manager()
 	load_high_scores()
 	reset_game()
 
@@ -454,6 +458,12 @@ func change_state(new_state: Constants.GameState) -> void:
 	game_state = new_state
 	emit_signal("state_changed", new_state)
 	_sync_title_screen_visibility()
+
+func _setup_sound_manager() -> void:
+	sound_manager = SoundManager.new()
+	sound_manager.name = "SoundManager"
+	add_child(sound_manager)
+	sound_manager.load_all_game_sounds()
 
 func _setup_background() -> void:
 	background_layer = CanvasLayer.new()
